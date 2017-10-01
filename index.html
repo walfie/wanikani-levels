@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WaniKani Levels</title>
 </head>
-<body>
-<h1>WaniKani Levels</h1>
 
+<body>
 <script src="lib.js"></script>
 <style>
 table {
@@ -17,14 +18,57 @@ table, th, td {
   border: 1px solid #999;
   padding: 5px;
 }
+
+textarea {
+  width: 98%;
+  max-width: 98%;
+  height: 90%;
+}
+
+a {
+  text-decoration: none;
+  padding: 5px;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.input-container {
+  width: 50%;
+  max-width: 500px;
+}
+
+@media screen and (max-width:600px) {
+  body {
+    font-size: 1.2rem;
+  }
+
+  .flex-container {
+    display: block;
+  }
+
+  textarea {
+    height: 15ch;
+  }
+
+  table, .kanji, .input-container {
+    width: 100%;
+  }
+}
 </style>
 
-<textarea id="input" rows="5" cols="60" placeholder="Enter some text with kanji in it"></textarea>
-<hr>
-<div id="output"></div>
+<div class="flex-container">
+  <div class="input-container">
+    <h1>WaniKani Levels</h1>
+    <textarea id="input" placeholder="Enter some text with kanji in it"></textarea>
+  </div>
+  <div id="output"></div>
+</div>
 
 <script>
 (function() {
+var localStorageKey = 'wk-level-input';
 
 var input = document.querySelector("#input");
 var output = document.querySelector("#output");
@@ -36,6 +80,8 @@ function elem(tag, text) {
 };
 
 function update() {
+  localStorage.setItem(localStorageKey, input.value);
+
   var levels = Array
     .from(getKanjiLevels(input.value))
     .sort(function(a, b) { return a[0] - b[0]; });
@@ -49,7 +95,18 @@ function update() {
   levels.forEach(function(item) {
     var tr = document.createElement('tr');
     tr.appendChild(elem('td', item[0] || '?'));
-    tr.appendChild(elem('td', item[1].join(' ')));
+
+    var td = document.createElement('td');
+    td.className = 'kanji';
+
+    item[1].forEach(function(kanji) {
+      var a = document.createElement('a');
+      a.href = 'https://wanikani.com/kanji/' + kanji;
+      a.innerHTML = kanji;
+      td.appendChild(a);
+    });
+
+    tr.appendChild(td);
     table.appendChild(tr);
   });
 
@@ -59,6 +116,8 @@ function update() {
 
 input.addEventListener('input', update);
 
+input.value = localStorage.getItem(localStorageKey);
+update();
 }());
 </script>
 
